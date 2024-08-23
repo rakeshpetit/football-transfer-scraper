@@ -57,7 +57,12 @@ function extractUsefulText(xmlObject: any): string[] {
             text = elementText.trim();
           }
           if (text.length > MIN_TEXT_LENGTH) {
-            usefulText.push(text);
+            const isUsefulTextAlreadyPresent = usefulText.find((arrayText) =>
+              arrayText.includes(text)
+            );
+            if (!isUsefulTextAlreadyPresent) {
+              usefulText.push(text);
+            }
           }
         } else if (key !== "svg") {
           traverse(obj[key]);
@@ -66,7 +71,12 @@ function extractUsefulText(xmlObject: any): string[] {
     } else if (typeof obj === "string") {
       let text = obj.trim();
       if (text.length > MIN_TEXT_LENGTH && !containsPattern(text)) {
-        usefulText.push(text);
+        const isUsefulTextAlreadyPresent = usefulText.find((arrayText) =>
+          arrayText.includes(text)
+        );
+        if (!isUsefulTextAlreadyPresent) {
+          usefulText.push(text);
+        }
       }
     }
   }
@@ -75,13 +85,23 @@ function extractUsefulText(xmlObject: any): string[] {
   return usefulText;
 }
 
+const writeToFile = (content: string[]) => {
+  fs.appendFile("output.txt", JSON.stringify(content, null, 2), (err) => {
+    if (err) {
+      console.error("Error writing HTML file:", err);
+    } else {
+      console.log("HTML file has been saved successfully.");
+    }
+  });
+};
+
 // Main function to process the XML file
 async function main() {
   const filePath = "./output.html"; // Replace with your XML file path
   try {
     const xmlObject = await parseXMLFile(filePath);
     const usefulText = extractUsefulText(xmlObject);
-    console.log(usefulText);
+    writeToFile(usefulText);
   } catch (error) {
     console.error("Error processing XML file:", error);
   }

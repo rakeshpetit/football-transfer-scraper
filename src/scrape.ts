@@ -1,5 +1,5 @@
 import fs from "fs";
-import { chromium } from "playwright";
+import { chromium, Page } from "playwright";
 
 (async () => {
   const response = await fetch("http://localhost:9222/json/version");
@@ -16,6 +16,39 @@ import { chromium } from "playwright";
 
   const accounts: string[] = ["FabrizioRomano"];
 
+  const getTweets = async (page: Page) => {
+    return await page.$$eval('article[data-testid="tweet"]', (elements) => {
+      return elements.map((element) => {
+        const username =
+          element
+            .querySelector('div[data-testid="User-Names"]')
+            ?.textContent?.trim() || "";
+        const content =
+          element
+            .querySelector('div[data-testid="tweetText"]')
+            ?.textContent?.trim() || "";
+        const timestamp =
+          element.querySelector("time")?.getAttribute("datetime") || "";
+
+        return { username, content, timestamp };
+      });
+    });
+  };
+
+  const writePageContent = async (page: Page, selector: string) => {
+    const ariaContent = await page.waitForSelector(selector);
+    const content = await ariaContent.innerHTML();
+    if (content) {
+      fs.appendFile("output.html", content, (err) => {
+        if (err) {
+          console.error("Error writing HTML file:", err);
+        } else {
+          console.log("HTML file has been saved successfully.");
+        }
+      });
+    }
+  };
+
   for (const account of accounts) {
     const url = `https://twitter.com/${account}/with_replies`;
     await page.goto(url);
@@ -24,42 +57,19 @@ import { chromium } from "playwright";
     await page.waitForSelector('article[data-testid="tweet"]');
 
     // Extract tweet information
-    const tweets = await page.$$eval(
-      'article[data-testid="tweet"]',
-      (elements) => {
-        return elements.map((element) => {
-          const username =
-            element
-              .querySelector('div[data-testid="User-Names"]')
-              ?.textContent?.trim() || "";
-          const content =
-            element
-              .querySelector('div[data-testid="tweetText"]')
-              ?.textContent?.trim() || "";
-          const timestamp =
-            element.querySelector("time")?.getAttribute("datetime") || "";
+    let tweets = await getTweets(page);
 
-          return { username, content, timestamp };
-        });
-      }
-    );
+    await writePageContent(page, '[aria-label="Home timeline"]');
 
-    // Get HTML based on Aria label
-    const ariaContent = await page.waitForSelector(
-      '[aria-label="Home timeline"]'
-    );
-
-    const content = await ariaContent.innerHTML();
-
-    // console.log(`Content`, content);
-    if (content) {
-      fs.writeFile("output.html", content, (err) => {
-        if (err) {
-          console.error("Error writing HTML file:", err);
-        } else {
-          console.log("HTML file has been saved successfully.");
-        }
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(3000);
+      await page.evaluate(() => {
+        window.scrollBy({ top: 2000, behavior: "smooth" });
       });
+      await writePageContent(
+        page,
+        '[aria-label="Timeline: Fabrizio Romano’s posts"]'
+      );
     }
 
     console.log(`Tweets length`, tweets.length);

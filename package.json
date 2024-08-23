@@ -5,7 +5,7 @@
   "scripts": {
     "compile": "tsc",
     "scrape": "ts-node src/scrape.ts",
-    "parse": "ts-node src/parsexml.ts > output.txt",
+    "parse": "ts-node src/parsexml.ts",
     "extract": "yarn scrape && yarn parse",
     "test": "ts-node src/test.ts"
   },
