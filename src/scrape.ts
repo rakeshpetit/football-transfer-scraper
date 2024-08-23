@@ -1,3 +1,4 @@
+import fs from "fs";
 import { chromium } from "playwright";
 
 (async () => {
@@ -16,11 +17,10 @@ import { chromium } from "playwright";
   const accounts: string[] = ["FabrizioRomano"];
 
   for (const account of accounts) {
-    const url = `https://twitter.com/${account}`;
+    const url = `https://twitter.com/${account}/with_replies`;
     await page.goto(url);
     console.log(`Visited ${url}`);
 
-    // Wait for the tweets to load
     await page.waitForSelector('article[data-testid="tweet"]');
 
     // Extract tweet information
@@ -44,8 +44,25 @@ import { chromium } from "playwright";
       }
     );
 
-    // Log the extracted tweets
-    console.log(`Tweets from ${account}:`, tweets);
+    // Get HTML based on Aria label
+    const ariaContent = await page.waitForSelector(
+      '[aria-label="Home timeline"]'
+    );
+
+    const content = await ariaContent.innerHTML();
+
+    // console.log(`Content`, content);
+    if (content) {
+      fs.writeFile("output.html", content, (err) => {
+        if (err) {
+          console.error("Error writing HTML file:", err);
+        } else {
+          console.log("HTML file has been saved successfully.");
+        }
+      });
+    }
+
+    console.log(`Tweets length`, tweets.length);
   }
 
   await browser.close();
