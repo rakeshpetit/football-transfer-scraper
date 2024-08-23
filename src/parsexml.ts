@@ -1,9 +1,20 @@
 import fs from "fs";
 import { XMLParser } from "fast-xml-parser";
+import { accounts } from "./accounts";
 
 const MIN_TEXT_LENGTH = 100;
 
-const PATTERNS = ["id__", "css-", "url(", "justify-content"];
+const PATTERNS = [
+  "id__",
+  "css-",
+  "url(",
+  "justify-content",
+  "background-color",
+  "border-color",
+  "width",
+  "height",
+  "transition-",
+];
 
 function containsPattern(text: string): boolean {
   for (const pattern of PATTERNS) {
@@ -85,25 +96,43 @@ function extractUsefulText(xmlObject: any): string[] {
   return usefulText;
 }
 
-const writeToFile = (content: string[]) => {
-  fs.appendFile("output.txt", JSON.stringify(content, null, 2), (err) => {
-    if (err) {
-      console.error("Error writing HTML file:", err);
-    } else {
-      console.log("HTML file has been saved successfully.");
+const writeToFile = (account: string, content: string[]) => {
+  const filePath = "output.json";
+  fs.appendFile(
+    filePath,
+    JSON.stringify(
+      {
+        account,
+        content,
+      },
+      null,
+      2
+    ),
+    (err) => {
+      if (err) {
+        console.error("Error writing HTML file:", err);
+      } else {
+        console.log("HTML file has been saved successfully.");
+      }
     }
-  });
+  );
+};
+
+const parseHTMLOutput = async (account: string, filePath: string) => {
+  try {
+    const xmlObject = await parseXMLFile(filePath);
+    const usefulText = extractUsefulText(xmlObject);
+    writeToFile(account, usefulText);
+  } catch (error) {
+    console.error("Error processing XML file:", error);
+  }
 };
 
 // Main function to process the XML file
 async function main() {
-  const filePath = "./output.html"; // Replace with your XML file path
-  try {
-    const xmlObject = await parseXMLFile(filePath);
-    const usefulText = extractUsefulText(xmlObject);
-    writeToFile(usefulText);
-  } catch (error) {
-    console.error("Error processing XML file:", error);
+  for (const { account } of accounts) {
+    const filePath = `./${account}.html`;
+    await parseHTMLOutput(account, filePath);
   }
 }
 
