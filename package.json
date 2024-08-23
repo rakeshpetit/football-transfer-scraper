@@ -8,7 +8,7 @@
     "parse": "ts-node src/parsexml.ts",
     "clean": "rm -rf *.html output.json",
     "extract": "yarn clean && yarn scrape && yarn parse",
-    "post": "ts-node db/posttweets.ts",
+    "post": "ts-node src/db/posttweets.ts",
     "test": "ts-node src/test.ts"
   },
   "keywords": [],

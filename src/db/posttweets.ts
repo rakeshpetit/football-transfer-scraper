@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 import fs from "fs";
-import { TweetContentOutput } from "../src/types";
+import { TweetContentOutput } from "../types";
 import { supabase } from "./client";
 
 const output = fs.readFileSync("output.json", "utf-8");
