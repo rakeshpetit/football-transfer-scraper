@@ -8,4 +8,12 @@ type TweetContentOutput = {
   content: string[];
 };
 
-export { XAccount, TweetContentOutput };
+type Transfer = {
+  player: string;
+  clubFrom: string;
+  clubTo: string;
+  fee: string;
+  confidence: number;
+};
+
+export { XAccount, TweetContentOutput, Transfer };

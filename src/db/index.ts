@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 import fs from "fs";
 import { TweetContentOutput } from "../types";
 import { supabase } from "./client";

@@ -15,23 +15,64 @@ export type Database = {
           created_at: string;
           id: number;
           original_news: string;
-          parsed_json_output: Json | null;
+          parsed: boolean | null;
         };
         Insert: {
           account: string;
           created_at?: string;
           id?: number;
           original_news?: string;
-          parsed_json_output?: Json | null;
+          parsed?: boolean | null;
         };
         Update: {
           account?: string;
           created_at?: string;
           id?: number;
           original_news?: string;
-          parsed_json_output?: Json | null;
+          parsed?: boolean | null;
         };
         Relationships: [];
+      };
+      transfers: {
+        Row: {
+          club_from: string;
+          club_to: string;
+          confidence: number;
+          created_at: string;
+          fee: string | null;
+          id: number;
+          player: string;
+          transfer_tweet_id: number | null;
+        };
+        Insert: {
+          club_from: string;
+          club_to: string;
+          confidence: number;
+          created_at?: string;
+          fee?: string | null;
+          id?: number;
+          player: string;
+          transfer_tweet_id?: number | null;
+        };
+        Update: {
+          club_from?: string;
+          club_to?: string;
+          confidence?: number;
+          created_at?: string;
+          fee?: string | null;
+          id?: number;
+          player?: string;
+          transfer_tweet_id?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "transfers_transfer_tweet_id_fkey";
+            columns: ["transfer_tweet_id"];
+            isOneToOne: false;
+            referencedRelation: "transfer_tweets";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: {

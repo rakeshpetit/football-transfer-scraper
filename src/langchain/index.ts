@@ -1,4 +1,8 @@
-import { addTransfer, fetchTransferTweets } from "../db/tweettransactions";
+import {
+  addTransfer,
+  fetchTransferTweets,
+  setParsed,
+} from "../db/tweettransactions";
 import { Transfer } from "../types";
 import { informationParser } from "./parser";
 
@@ -21,7 +25,18 @@ async function main() {
       )) as any;
       console.log("Processed tweet:", tweet.original_news);
       console.log(response);
-      await addTransfer(response);
+      if (
+        response &&
+        "player" in response &&
+        "clubFrom" in response &&
+        "clubTo" in response &&
+        "fee" in response &&
+        "confidence" in response
+      ) {
+        await addTransfer(response, tweet.id);
+      } else {
+        await setParsed(tweet.id);
+      }
     });
   }
 }
