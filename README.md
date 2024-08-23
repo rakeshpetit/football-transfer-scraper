@@ -15,4 +15,16 @@ to it.
 yarn extract
 ```
 
-Both the above commands together will save latest tweets to output.txt
+Both the above commands together will save latest tweets to a `output.json`.
+
+## Post to database
+
+After configuring your Supabase credentials in `.env`, Create the
+`transfer_tweets` database table based on the schema in file
+`db/database.types.ts`. After this run:
+
+```
+yarn post
+```
+
+This should save all the tweet data from `output.json` to the Supabase table.
