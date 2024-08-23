@@ -6,7 +6,8 @@
     "compile": "tsc",
     "scrape": "ts-node src/scrape.ts",
     "parse": "ts-node src/parsexml.ts",
-    "extract": "yarn scrape && yarn parse",
+    "clean": "rm -rf *.html output.json",
+    "extract": "yarn clean && yarn scrape && yarn parse",
     "post": "ts-node db/posttweets.ts",
     "test": "ts-node src/test.ts"
   },
