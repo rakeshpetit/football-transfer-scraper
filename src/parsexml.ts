@@ -1,7 +1,7 @@
-require("dotenv").config();
 import fs from "fs";
 import { XMLParser } from "fast-xml-parser";
 import { accounts } from "./accounts";
+import { TweetContentOutput } from "./types";
 
 const MIN_TEXT_LENGTH = 100;
 
@@ -97,44 +97,43 @@ function extractUsefulText(xmlObject: any): string[] {
   return usefulText;
 }
 
-const writeToFile = (account: string, content: string[]) => {
+const writeToFile = (content: TweetContentOutput[]) => {
   const filePath = "output.json";
-  fs.appendFile(
-    filePath,
-    JSON.stringify(
-      {
-        account,
-        content,
-      },
-      null,
-      2
-    ),
-    (err) => {
-      if (err) {
-        console.error("Error writing HTML file:", err);
-      } else {
-        console.log("HTML file has been saved successfully.");
-      }
+  fs.appendFile(filePath, JSON.stringify(content, null, 2), (err) => {
+    if (err) {
+      console.error("Error writing HTML file:", err);
+    } else {
+      console.log("HTML file has been saved successfully.");
     }
-  );
+  });
 };
 
-const parseHTMLOutput = async (account: string, filePath: string) => {
+const parseHTMLOutput = async (
+  account: string,
+  filePath: string
+): Promise<TweetContentOutput | undefined> => {
   try {
     const xmlObject = await parseXMLFile(filePath);
     const usefulText = extractUsefulText(xmlObject);
-    writeToFile(account, usefulText);
+    // writeToFile(account, usefulText);
+    return { account, content: usefulText };
   } catch (error) {
     console.error("Error processing XML file:", error);
   }
+  return;
 };
 
 // Main function to process the XML file
 async function main() {
+  let allContent = [];
   for (const { account } of accounts) {
     const filePath = `./${account}.html`;
-    await parseHTMLOutput(account, filePath);
+    const content = await parseHTMLOutput(account, filePath);
+    if (content) {
+      allContent.push(content);
+    }
   }
+  writeToFile(allContent);
 }
 
 // Run the main function

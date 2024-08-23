@@ -1,7 +1,4 @@
-type XAccount = {
-  account: string;
-  timeline: string;
-};
+import { XAccount } from "./types";
 
 const accounts: XAccount[] = [
   {
