@@ -1,3 +1,4 @@
+require("dotenv").config();
 import fs from "fs";
 import { XMLParser } from "fast-xml-parser";
 import { accounts } from "./accounts";
